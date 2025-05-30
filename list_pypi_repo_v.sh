@@ -1,13 +1,23 @@
 #!/bin/bash
 
-read -p "Enter PyPI package name (e.g., requests): " PKG
+# Prompt the user for the PyPI project URL
+read -p "Enter PyPI project URL (e.g., https://pypi.org/project/setuptools/): " URL
 
-OUT="pyversion.txt"
+# Extract the package name from the URL
+PKG=$(echo "$URL" | sed -E 's|.*/project/([^/]+)/?.*|\1|')
+
+if [[ -z "$PKG" ]]; then
+    echo "Could not extract package name from URL."
+    exit 1
+fi
+
+OUT="version_pypi.txt"
 : > "$OUT"
 
-VERS=$(curl -s "https://pypi.org/pypi/${PKG}/json" | jq -r '.releases | keys[]')
+# Pull all versions and format as: https://pypi.org/project/<package>/<version>/
+VERS=$(curl -s "https://pypi.org/pypi/${PKG}/json" | jq -r '.releases | keys[]' | sort -V)
 for VER in $VERS; do
-    echo -e "${VER}\thttps://pypi.org/project/${PKG}/${VER}/" >> "$OUT"
+    echo "https://pypi.org/project/${PKG}/${VER}/" >> "$OUT"
 done
 
-echo "Saved versions and URLs to $OUT"
+echo "Saved version URLs to $OUT"
