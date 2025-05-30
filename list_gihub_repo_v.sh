@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to list ALL tags and their commit URLs for a GitHub repo
+# Script to list ALL tags and their commit URLs for a GitHub repo (without showing the version in output)
 
 read -p "Enter the GitHub repository URL (e.g., https://github.com/owner/repo): " REPO_URL
 
@@ -16,7 +16,7 @@ else
     exit 1
 fi
 
-OUTPUT_FILE="githubversion.txt"
+OUTPUT_FILE="version_github.txt"
 > "$OUTPUT_FILE"
 
 PAGE=1
@@ -30,7 +30,8 @@ while :; do
         break
     fi
     for i in "${!TAGNAMES[@]}"; do
-        echo -e "${TAGNAMES[$i]}\t${REPO_URL}/commit/${SHAS[$i]}" >> "$OUTPUT_FILE"
+        # Only output the commit URL, removing the tag/version name
+        echo "${REPO_URL}/commit/${SHAS[$i]}" >> "$OUTPUT_FILE"
     done
     # If fewer than PER_PAGE tags, we're done
     if [ ${#TAGNAMES[@]} -lt $PER_PAGE ]; then
